@@ -207,10 +207,10 @@ Napi::Value NodeTray::getBounds(const Napi::CallbackInfo &info)
 
     Napi::Object obj = Napi::Object::New(env);
 
-    obj.Set("left", Napi::Value::From(env, rect.left));
-    obj.Set("top", Napi::Value::From(env, rect.top));
-    obj.Set("right", Napi::Value::From(env, rect.right));
-    obj.Set("bottom", Napi::Value::From(env, rect.bottom));
+    obj.Set("x", Napi::Value::From(env, rect.left));
+    obj.Set("y", Napi::Value::From(env, rect.top));
+    obj.Set("width", Napi::Value::From(env, rect.right - rect.left));
+    obj.Set("height", Napi::Value::From(env, rect.bottom - rect.top));
 
     return obj;
 }

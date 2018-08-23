@@ -2,11 +2,11 @@ declare module "n-windows-tray" {
   export = NodeTray;
   type Listener = (...args: any[]) => void;
 
-  type Rect = {
-    left: number;
-    top: number;
-    right: number;
-    bottom: number;
+  type Rectangle = {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
   };
 
   class NodeTray {
@@ -15,7 +15,7 @@ declare module "n-windows-tray" {
     destroy(): void;
     setIcon(icon: string): void;
     setToolTip(text: string): void;
-    getBounds(): Rect;
+    getBounds(): Rectangle;
 
     on(type: "mouse-enter", listener: Listener): this;
     once(type: "mouse-enter", listener: Listener): this;
