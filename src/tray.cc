@@ -433,6 +433,7 @@ void NodeTray::_destroyWindow()
 
 void NodeTray::loadIcon()
 {
+    destroyIcon();
     icon_ = getIconHandle(iconPath_);
 }
 
