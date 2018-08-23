@@ -1,0 +1,25 @@
+{
+  "name": "n-windows-tray",
+  "version": "0.1.1",
+  "description": "windows system trayicon for node",
+  "main": "./js/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node-gyp build",
+    "compile": "node-gyp rebuild",
+    "start": "node ./example/demo.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hiitiger/n-windows-tray.git"
+  },
+  "author": "hiitiger",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hiitiger/n-windows-tray/issues"
+  },
+  "homepage": "https://github.com/hiitiger/n-windows-tray#readme",
+  "dependencies": {
+    "node-addon-api": "^1.4.0"
+  }
+}
