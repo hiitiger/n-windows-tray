@@ -19,21 +19,17 @@ class NodeTray : public Napi::ObjectWrap<NodeTray>
     POINT cursor_;
     bool mouseEntered_ = false;
 
-    std::unordered_map<std::string, std::shared_ptr<NodeEventCallback>> callbacks_;
-
-    template<class ...Arg>
-    void async_call_node(const std::string& eventName, const Arg& ... args)
+    template <class... Arg>
+    void emit(const std::string &eventName, const Arg &... args)
     {
-        auto it = callbacks_.find(eventName);
-        if (it != callbacks_.end())
-        {
-            auto cb = it->second;
+            Napi::HandleScope scope(wrapper_.Env());
 
-            Napi::HandleScope scope(cb->env);
-
-            cb->callback.MakeCallback(cb->receiver.Value(), { Napi::Value::From(cb->env, args)... });
-        }
+            Napi::Object wrapper = wrapper_.Value();
+            Napi::Function emiiter = wrapper.Get("emit").As<Napi::Function>();
+            emiiter.MakeCallback(wrapper, {Napi::String::New(wrapper.Env(), eventName), Napi::Value::From(wrapper.Env(), args)...});
     }
+
+    Napi::ObjectReference wrapper_;
 
 
   public:
@@ -42,7 +38,6 @@ class NodeTray : public Napi::ObjectWrap<NodeTray>
     NodeTray(const Napi::CallbackInfo &info);
     ~NodeTray();
 
-    Napi::Value setEventCallback(const Napi::CallbackInfo &info);
     Napi::Value destroy(const Napi::CallbackInfo &info);
     Napi::Value setIcon(const Napi::CallbackInfo &info);
     Napi::Value setToolTip(const Napi::CallbackInfo &info);
@@ -72,8 +67,8 @@ class NodeTray : public Napi::ObjectWrap<NodeTray>
 
     bool addTrayIcon();
     bool destroyTrayIcon();
-    bool updateIcon(const std::string& icon);
-    bool updateToolTip(const std::string& tip);
+    bool updateIcon(const std::string &icon);
+    bool updateToolTip(const std::string &tip);
 
     RECT getRect();
 

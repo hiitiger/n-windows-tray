@@ -1,4 +1,3 @@
-#include "n-utils.hpp"
 #include "tray.h"
 #include <assert.h>
 #include <shellapi.h>
@@ -133,7 +132,6 @@ Napi::Object NodeTray::Init(Napi::Env env, Napi::Object exports)
     Napi::HandleScope scope(env);
 
     Napi::Function func = DefineClass(env, "NodeTray", {
-                                                           NAPI_METHOD_INSTANCE(NodeTray, setEventCallback),
                                                            NAPI_METHOD_INSTANCE(NodeTray, destroy),
                                                            NAPI_METHOD_INSTANCE(NodeTray, setIcon),
                                                            NAPI_METHOD_INSTANCE(NodeTray, setToolTip),
@@ -150,6 +148,7 @@ Napi::Object NodeTray::Init(Napi::Env env, Napi::Object exports)
 NodeTray::NodeTray(const Napi::CallbackInfo &info)
     : Napi::ObjectWrap<NodeTray>(info)
 {
+    wrapper_ = Napi::Weak(info.This().ToObject());
     iconPath_ = utils::fromUtf8(info[0].ToString());
     start();
 }
@@ -157,18 +156,6 @@ NodeTray::NodeTray(const Napi::CallbackInfo &info)
 NodeTray::~NodeTray()
 {
     stop();
-}
-
-Napi::Value NodeTray::setEventCallback(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
-
-    std::string event = info[0].ToString();
-    Napi::Function callback = info[1].As<Napi::Function>();
-
-    this->callbacks_.insert(std::make_pair(event, std::make_shared<NodeEventCallback>(env, Napi::Persistent(callback), Napi::Persistent(info.This().ToObject()))));
-
-    return env.Undefined();
 }
 
 Napi::Value NodeTray::destroy(const Napi::CallbackInfo &info)
@@ -322,27 +309,27 @@ void NodeTray::_checkMouseLeave()
 
 void NodeTray::onMouseEnter()
 {
-    this->async_call_node("mouse-enter");
+    this->emit("mouse-enter");
 }
 
 void NodeTray::onMouseLeave()
 {
-    this->async_call_node("mouse-leave");
+    this->emit("mouse-leave");
 }
 
 void NodeTray::onDoubleClicked()
 {
-    this->async_call_node("double-click");
+    this->emit("double-click");
 }
 
 void NodeTray::onClicked()
 {
-    this->async_call_node("click");
+    this->emit("click");
 }
 
 void NodeTray::onRightClicked()
 {
-    this->async_call_node("right-click");
+    this->emit("right-click");
 }
 
 void NodeTray::start()

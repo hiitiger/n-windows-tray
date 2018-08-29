@@ -7,7 +7,6 @@
     ],
     "sources": [
       "src/n-utils.hpp",
-      "src/windll.hpp",
       "src/utils.hpp",
       "src/tray.h",
       "src/tray.cc",
