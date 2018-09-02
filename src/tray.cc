@@ -1,6 +1,5 @@
 #include "tray.h"
 #include <assert.h>
-#include <shellapi.h>
 #include "node_async_call.h"
 #include <iostream>
 
@@ -15,18 +14,14 @@
 
 static const UINT g_WndMsgTaskbarCreated = RegisterWindowMessageW(L"TaskbarCreated");
 
-const int KTrayIconId = 1;
-
 #define TRAY_WINDOW_MESSAGE (WM_USER + 100)
 #define WAKEUP_MESSAGE (WM_USER + 101)
 
-void getInitializedNCD(HWND window, NOTIFYICONDATAW &ncd)
+
+static UINT nextTrayIconId()
 {
-    ncd.cbSize = sizeof(NOTIFYICONDATAW);
-    ncd.hWnd = window;
-    ncd.uID = KTrayIconId;
-    const static GUID c_trayicon_id = {0x16ec64fd, 0xa964, 0x4323, {0xac, 0x3e, 0x6d, 0x6b, 0xd5, 0xc3, 0xe8, 0x38}};
-    ncd.guidItem = c_trayicon_id;
+    static UINT next_id = 2;
+    return next_id++;
 }
 
 HICON getIconHandle(const std::wstring &iconPath)
@@ -147,6 +142,7 @@ Napi::Object NodeTray::Init(Napi::Env env, Napi::Object exports)
 
 NodeTray::NodeTray(const Napi::CallbackInfo &info)
     : Napi::ObjectWrap<NodeTray>(info)
+    , id_(nextTrayIconId())
 {
     wrapper_ = Napi::Weak(info.This().ToObject());
     iconPath_ = utils::fromUtf8(info[0].ToString());
@@ -436,7 +432,7 @@ void NodeTray::destroyIcon()
 bool NodeTray::addTrayIcon()
 {
     NOTIFYICONDATAW icon_data = {0};
-    getInitializedNCD(window_, icon_data);
+    getInitializedNCD(icon_data);
 
     icon_data.uFlags = NIF_ICON | NIF_MESSAGE;
     icon_data.hIcon = icon_;
@@ -448,7 +444,7 @@ bool NodeTray::addTrayIcon()
 bool NodeTray::destroyTrayIcon()
 {
     NOTIFYICONDATAW icon_data = {0};
-    getInitializedNCD(window_, icon_data);
+    getInitializedNCD(icon_data);
     BOOL result = Shell_NotifyIcon(NIM_DELETE, &icon_data);
     CHECK_RESULT(result);
     return !!result;
@@ -460,7 +456,7 @@ bool NodeTray::updateIcon(const std::string &icon)
     loadIcon();
 
     NOTIFYICONDATAW icon_data = {0};
-    getInitializedNCD(window_, icon_data);
+    getInitializedNCD(icon_data);
     icon_data.uFlags |= NIF_ICON;
     icon_data.hIcon = icon_;
 
@@ -472,7 +468,7 @@ bool NodeTray::updateIcon(const std::string &icon)
 bool NodeTray::updateToolTip(const std::string &tip)
 {
     NOTIFYICONDATAW icon_data = {0};
-    getInitializedNCD(window_, icon_data);
+    getInitializedNCD(icon_data);
     icon_data.uFlags |= NIF_TIP;
     wcsncpy_s(icon_data.szTip, utils::fromUtf8(tip).c_str(), _TRUNCATE);
     BOOL result = Shell_NotifyIcon(NIM_MODIFY, &icon_data);
@@ -484,10 +480,9 @@ RECT NodeTray::getRect()
 {
     NOTIFYICONIDENTIFIER icon_id;
     memset(&icon_id, 0, sizeof(NOTIFYICONIDENTIFIER));
-    icon_id.uID = KTrayIconId;
+    icon_id.uID = id_;
     icon_id.hWnd = window_;
     icon_id.cbSize = sizeof(NOTIFYICONIDENTIFIER);
-
     RECT rect = {0};
     Shell_NotifyIconGetRect(&icon_id, &rect);
 
@@ -497,4 +492,11 @@ RECT NodeTray::getRect()
 HICON NodeTray::getIcon()
 {
     return icon_;
+}
+
+void NodeTray::getInitializedNCD( NOTIFYICONDATAW &ncd)
+{
+    ncd.cbSize = sizeof(NOTIFYICONDATAW);
+    ncd.hWnd = window_;
+    ncd.uID = id_;
 }

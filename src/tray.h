@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include "n-utils.hpp"
 #include "utils.hpp"
+#include <shellapi.h>
 
 class NodeTray : public Napi::ObjectWrap<NodeTray>
 {
@@ -13,7 +14,7 @@ class NodeTray : public Napi::ObjectWrap<NodeTray>
 
     std::wstring iconPath_;
     HICON icon_ = nullptr;
-
+    UINT id_ = 0;
     std::shared_ptr<std::thread> worker_;
     HWND window_ = nullptr;
     POINT cursor_;
@@ -73,4 +74,7 @@ class NodeTray : public Napi::ObjectWrap<NodeTray>
     RECT getRect();
 
     HICON getIcon();
+
+    void getInitializedNCD(NOTIFYICONDATAW &ncd);
+
 };
