@@ -19,6 +19,7 @@ setInterval(() => {
 setTimeout(() => {
     tray.on("double-click", () => {
         tray.destroy()
+        tray2.destroy()
         process.exit(0)
     })
 

@@ -1,6 +1,6 @@
 #include "tray.h"
 #include <assert.h>
-#include "node_async_call.h"
+#include "utils/node_async_call.h"
 #include <iostream>
 
 #define CHECK_RESULT(result)                                    \

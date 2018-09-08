@@ -4,8 +4,8 @@
 #include <thread>
 #include <functional>
 #include <unordered_map>
-#include "n-utils.hpp"
-#include "utils.hpp"
+#include "utils/n-utils.h"
+#include "utils/win-utils.h"
 #include <shellapi.h>
 
 class NodeTray : public Napi::ObjectWrap<NodeTray>
